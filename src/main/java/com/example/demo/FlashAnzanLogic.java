@@ -20,6 +20,7 @@ public class FlashAnzanLogic implements Serializable {
     private boolean gameStarted = false;
     private final Random random = new Random();
 
+    // ゲームリセット
     public void reset() {
         if (this.score > this.highScore) {
             this.highScore = this.score;
@@ -29,6 +30,7 @@ public class FlashAnzanLogic implements Serializable {
         this.gameStarted = false;
     }
 
+    // ゲーム開始
     public void startGame(String mode, int startLevel) {
         this.mode = mode;
         this.level = startLevel;
@@ -36,51 +38,57 @@ public class FlashAnzanLogic implements Serializable {
         this.gameStarted = true;
     }
 
+    // スコア加算
     public void addScore(double timeBonusRatio) {
-        if (this.mode.contains("challenge")) {
-            int base = this.level * 100;
-            int speed = (int) (timeBonusRatio * 500);
-            int total = base + speed;
+        int base = this.level * 100;
+        int speed = (int) (timeBonusRatio * 500);
+        int total = base + speed;
 
-            double multiplier = 1.0;
-            if (this.mode.contains("challenge_2")) multiplier *= 2.0;
-            if (this.mode.contains("challenge_3")) multiplier *= 4.0;
-            if (this.mode.startsWith("memory")) multiplier *= 1.5;
+        double multiplier = 1.0;
+        if (this.mode.contains("challenge_2")) multiplier *= 2.0;
+        if (this.mode.contains("challenge_3")) multiplier *= 4.0;
+        if (this.mode.startsWith("memory")) multiplier *= 1.5;
 
-            this.score += (int)(total * multiplier);
-            if (this.score > this.highScore) this.highScore = this.score;
-        }
+        this.score += (int)(total * multiplier);
+        if (this.score > this.highScore) this.highScore = this.score;
     }
 
+    // レベルアップ
     public void incrementLevel() {
         this.level++;
     }
 
+    // 質問生成
     public List<Integer> generateQuestions() {
         this.totalSum = 0;
         List<Integer> list = new ArrayList<>();
-        int count = 2 + level; 
+        int count = Math.max(2, level); // 安全のため最低2個
         for (int i = 0; i < count; i++) {
-            int num = random.nextInt(9) + 1;
+            int num = random.nextInt(9) + 1; // 1~9
             list.add(num);
             this.totalSum += num;
         }
         return list;
     }
 
+    // 選択肢生成
     public List<Integer> getChoices() {
         List<Integer> choices = new ArrayList<>();
         choices.add(totalSum);
+
         while (choices.size() < 4) {
-            int wrong = totalSum + (random.nextInt(11) - 5);
+            int delta = random.nextInt(7) - 3; // -3～+3
+            int wrong = totalSum + delta;
             if (wrong > 0 && !choices.contains(wrong)) {
                 choices.add(wrong);
             }
         }
+
         Collections.shuffle(choices);
         return choices;
     }
 
+    // ゲーム状態取得
     public boolean isGameStarted() { return gameStarted; }
     public int getLevel() { return level; }
     public String getMode() { return mode; }
@@ -88,9 +96,10 @@ public class FlashAnzanLogic implements Serializable {
     public int getScore() { return score; }
     public int getHighScore() { return highScore; }
 
+    // 表示速度
     public int getDisplaySpeed() {
         int speed = 600 - (level * 20);
-        if (this.mode.startsWith("memory")) speed += 100; // 記憶モードはやや緩やかに
+        if (this.mode.startsWith("memory")) speed += 100; // 記憶モードは少し緩やかに
         return Math.max(150, speed);
     }
 }
