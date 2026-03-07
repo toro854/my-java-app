@@ -125,18 +125,33 @@ function backToStepNormal1(){
     document.getElementById('step-normal-level').style.display='none';
     document.getElementById('step-normal-1').style.display='block';
 }
+// 通常モード：ギミック選択後にゲーム開始
 function finalStart(isFlip){
-    const modeStr=`${selectedType}_normal_${tempSubMode}_${isFlip?'flip':'noflip'}`;
-    window.location.href=`/start?mode=${modeStr}&startLevel=${tempStartLevel}`;
+    const modeStr = `${selectedType}_normal_${tempSubMode}_${isFlip?'flip':'noflip'}`;
+    // startLevelを含めてゲーム画面に遷移
+    startGameOnPage(modeStr, tempStartLevel);
 }
+
+// チャレンジモード：レベル選択後にゲーム開始
 function startChallenge(lv){
-    const modeStr=`${selectedType}_challenge_${lv}`;
-    window.location.href=`/start?mode=${modeStr}&startLevel=1`;
+    const modeStr = `${selectedType}_challenge_${lv}`;
+    startGameOnPage(modeStr, 1);
 }
-function confirmRetire(){
-    if(confirm("ゲームを終了してメニューに戻りますか？")){
-        window.location.href="/reset";
-    }
+
+// 共通関数：ゲーム開始処理
+function startGameOnPage(mode, startLevel){
+    // メニューを非表示、ゲーム画面を表示
+    document.getElementById('menu-screen').style.display = 'none';
+    document.getElementById('game-screen').style.display = 'block';
+
+    // Spring Boot 側にリクエストしてゲームデータを取得する想定
+    // ここでは Thymeleaf 変数 [[${numbers}]] 等を使用する
+    // 例: ゲーム開始後のJS処理をここに統合
+    console.log("ゲーム開始:", mode, "レベル:", startLevel);
+    
+    // ここで numbers, answer, speed, mode などを設定して startGame() を呼び出す
+    // startGame(numbers, speed, mode, answer, startLevel);
+}
 }
 </script>
 
