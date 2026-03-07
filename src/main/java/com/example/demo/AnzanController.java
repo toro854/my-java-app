@@ -9,36 +9,29 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 public class AnzanController {
-    
+
     private final FlashAnzanLogic logic;
 
-	public AnzanController(FlashAnzanLogic logic) {
+    public AnzanController(FlashAnzanLogic logic) {
         this.logic = logic;
-	}
+    }
 
     @GetMapping("/")
     public String index(Model model) {
-        // 常に最新のフラグ状態を渡す
-        boolean started = logic.isGameStarted();
-        model.addAttribute("gameStarted", started);
-        model.addAttribute("level", logic.getLevel());
-        model.addAttribute("mode", logic.getMode());
-        model.addAttribute("score", logic.getScore());
-        model.addAttribute("highScore", logic.getHighScore());
 
-        // ゲーム中なら、必ず数字と選択肢を生成してモデルに入れる
-        if (started) {
-            List<Integer> numbers = logic.generateQuestions();
-            model.addAttribute("numbers", numbers); // これがJSの numbers になります
+        model.addAttribute("gameStarted", logic.isGameStarted());
+        model.addAttribute("level", logic.getLevel());
+        model.addAttribute("score", logic.getScore());
+
+        if (logic.isGameStarted()) {
+            model.addAttribute("numbers", logic.generateQuestions());
             model.addAttribute("answer", logic.getTotalSum());
             model.addAttribute("choices", logic.getChoices());
-            model.addAttribute("speed", logic.getDisplaySpeed());
-            
-            System.out.println("Numbers generated: " + numbers); // Javaのコンソールで確認用
         }
+
         return "index";
     }
-
+}
     @GetMapping("/start")
     public String start(
         @RequestParam(defaultValue = "normal") String mode,
