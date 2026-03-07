@@ -152,6 +152,10 @@ function startGameOnPage(mode, startLevel){
     // ここで numbers, answer, speed, mode などを設定して startGame() を呼び出す
     // startGame(numbers, speed, mode, answer, startLevel);
 }
+function confirmRetire(){
+    if(confirm("ゲームを終了してメニューに戻りますか？")){
+        window.location.href="/reset";
+    }
 }
 </script>
 
