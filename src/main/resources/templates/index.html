@@ -1,29 +1,33 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="ja">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>フラッシュ・トレーニング・プロ 完全版</title>
 <style>
-body { font-family: 'Helvetica Neue', Arial, sans-serif; text-align: center; background: #f4f7f6; color: #333; }
-#game-container { background: white; max-width: 600px; margin: 30px auto; padding: 40px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-.mode-btn { display: block; width: 280px; margin: 15px auto; padding: 15px; background: #3498db; color: white; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+/* 既存のスタイルを維持しつつ、レスポンシブ調整 */
+body { font-family: 'Helvetica Neue', Arial, sans-serif; text-align: center; background: #f4f7f6; color: #333; margin: 0; padding: 20px; }
+#game-container { background: white; max-width: 600px; margin: 0 auto; padding: 40px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); min-height: 400px; position: relative; }
+.mode-btn { display: block; width: 100%; max-width: 280px; margin: 15px auto; padding: 15px; background: #3498db; color: white; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; transition: 0.3s; }
 .mode-btn:hover { background: #2980b9; transform: translateY(-2px); }
 .back-btn { background: #95a5a6; }
-#flash-text { font-size: 120px; font-weight: bold; height: 200px; display: flex; align-items: center; justify-content: center; }
+#flash-text { font-size: 80px; font-weight: bold; height: 200px; display: flex; align-items: center; justify-content: center; }
 .choice-btn { font-size: 24px; padding: 15px 30px; margin: 10px; cursor: pointer; border: 2px solid #3498db; background: white; border-radius: 10px; transition: 0.2s; }
 .choice-btn:hover { background: #3498db; color: white; }
+#timer-bar-container { width:100%; height:10px; background:#eee; margin-top:20px; border-radius: 5px; overflow: hidden; }
+#timer-bar { width:100%; height:100%; background:#e74c3c; transition: width 0.1s linear; }
+.flip { transform: scaleX(-1); } /* 反転ギミック用 */
 </style>
 </head>
 <body>
 
 <div id="game-container">
-    <!-- メニュー画面 -->
     <div id="menu-screen">
         <div id="step-0">
             <h1>トレーニング選択</h1>
             <button class="mode-btn" onclick="selectGameType('anzan')">フラッシュ暗算</button>
             <button class="mode-btn" onclick="selectGameType('memory')" style="background:#9b59b6;">フラッシュ記憶</button>
-            <p style="margin-top:20px;">High Score: [[${highScore}]]</p>
+            <p style="margin-top:20px;">High Score: <span id="display-high-score">0</span></p>
         </div>
 
         <div id="step-1" style="display:none;">
@@ -42,19 +46,19 @@ body { font-family: 'Helvetica Neue', Arial, sans-serif; text-align: center; bac
             <button class="mode-btn back-btn" onclick="backToStep1()">戻る</button>
         </div>
 
-        <div id="step-normal-2" style="display:none;">
-            <h3>2. ギミックを選択</h3>
-            <button class="mode-btn" onclick="finalStart(true)" style="background:#e74c3c;">反転あり</button>
-            <button class="mode-btn" onclick="finalStart(false)" style="background:#2ecc71;">なし</button>
-            <button class="mode-btn back-btn" onclick="goToStep2('normal')">戻る</button>
-        </div>
-
         <div id="step-normal-level" style="display:none;">
             <h3>2. 開始レベルを選択</h3>
             <button class="mode-btn" onclick="setStartLevel(1)">レベル 1</button>
             <button class="mode-btn" onclick="setStartLevel(5)" style="background:#f1c40f;">レベル 5</button>
             <button class="mode-btn" onclick="setStartLevel(10)" style="background:#e67e22;">レベル 10</button>
             <button class="mode-btn back-btn" onclick="backToStepNormal1()">戻る</button>
+        </div>
+
+        <div id="step-normal-2" style="display:none;">
+            <h3>3. ギミックを選択</h3>
+            <button class="mode-btn" onclick="finalStart(true)" style="background:#e74c3c;">反転あり</button>
+            <button class="mode-btn" onclick="finalStart(false)" style="background:#2ecc71;">なし</button>
+            <button class="mode-btn back-btn" onclick="goToStep2('normal')">戻る</button>
         </div>
 
         <div id="step-challenge" style="display:none;">
@@ -66,29 +70,39 @@ body { font-family: 'Helvetica Neue', Arial, sans-serif; text-align: center; bac
         </div>
     </div>
 
-    <!-- ゲーム画面 -->
     <div id="game-screen" style="display:none;">
         <div style="text-align: right; margin-bottom: 5px;">
             <button onclick="confirmRetire()" style="padding: 4px 12px; font-size: 12px; background: #e74c3c; color: white; border: none; border-radius: 4px; cursor: pointer; opacity: 0.8;">リタイア</button>
         </div>
         <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
-            <span>Level: [[${level}]]</span>
-            <span style="color: #27ae60; font-weight: bold;">Score: [[${score}]]</span>
+            <span>Level: <span id="current-level">1</span></span>
+            <span style="color: #27ae60; font-weight: bold;">Score: <span id="current-score">0</span></span>
         </div>
-        <div id="flash-text" style="visibility: hidden;"></div>
+        <div id="flash-text"></div>
         <div id="message-overlay" style="display: none; font-size: 40px; color: #2ecc71; font-weight: bold;">正解！</div>
+        
         <div id="input-area" style="display: none; margin-top: 20px;">
-            <div id="question-label"></div>
+            <div id="question-label" style="margin-bottom:10px; font-weight:bold;">答えを選んでください</div>
             <div id="choices-container"></div>
-            <div id="timer-bar-container" style="width:100%; height:10px; background:#eee; margin-top:20px;">
-                <div id="timer-bar" style="width:100%; height:100%; background:#e74c3c;"></div>
+            <div id="timer-bar-container">
+                <div id="timer-bar"></div>
             </div>
         </div>
     </div>
 </div>
 
-<script th:inline="javascript">
+<script>
+// --- ゲーム管理変数 ---
 let selectedType='', tempMainMode='', tempSubMode='', tempStartLevel=1;
+let currentLevel = 1, currentScore = 0, highScore = localStorage.getItem('flash_high_score') || 0;
+let isFlipMode = false;
+
+// 辞書データ
+const KANJI = ["〇", "一", "二", "三", "四", "五", "六", "七", "八", "九"];
+const ROMAN = ["零", "壱", "弐", "参", "肆", "伍", "陸", "漆", "捌", "玖"];
+
+// --- 画面遷移ロジック ---
+document.getElementById('display-high-score').innerText = highScore;
 
 function selectGameType(type){
     selectedType=type;
@@ -125,39 +139,118 @@ function backToStepNormal1(){
     document.getElementById('step-normal-level').style.display='none';
     document.getElementById('step-normal-1').style.display='block';
 }
-// 通常モード：ギミック選択後にゲーム開始
+
 function finalStart(isFlip){
-    const modeStr = `${selectedType}_normal_${tempSubMode}_${isFlip?'flip':'noflip'}`;
-    // startLevelを含めてゲーム画面に遷移
-    startGameOnPage(modeStr, tempStartLevel);
+    isFlipMode = isFlip;
+    currentLevel = tempStartLevel;
+    currentScore = 0;
+    startGameLoop();
 }
 
-// チャレンジモード：レベル選択後にゲーム開始
 function startChallenge(lv){
-    const modeStr = `${selectedType}_challenge_${lv}`;
-    startGameOnPage(modeStr, 1);
+    isFlipMode = lv > 2;
+    currentLevel = lv * 5; 
+    currentScore = 0;
+    startGameLoop();
 }
 
-// 共通関数：ゲーム開始処理
-function startGameOnPage(mode, startLevel){
-    // メニューを非表示、ゲーム画面を表示
+// --- ゲームコアロジック ---
+async function startGameLoop() {
     document.getElementById('menu-screen').style.display = 'none';
     document.getElementById('game-screen').style.display = 'block';
+    updateHUD();
 
-    // Spring Boot 側にリクエストしてゲームデータを取得する想定
-    // ここでは Thymeleaf 変数 [[${numbers}]] 等を使用する
-    // 例: ゲーム開始後のJS処理をここに統合
-    console.log("ゲーム開始:", mode, "レベル:", startLevel);
-    
-    // ここで numbers, answer, speed, mode などを設定して startGame() を呼び出す
-    // startGame(numbers, speed, mode, answer, startLevel);
+    const count = 3 + Math.floor(currentLevel / 3);
+    const speed = Math.max(200, 1000 - (currentLevel * 50));
+    let numbers = [];
+    let displayValues = [];
+
+    // 問題作成
+    for(let i=0; i<count; i++) {
+        let n = Math.floor(Math.random() * 9) + 1;
+        numbers.push(n);
+        displayValues.push(convertText(n, tempSubMode));
+    }
+
+    const answer = selectedType === 'anzan' ? numbers.reduce((a, b) => a + b, 0) : numbers.join('');
+
+    // 表示フェーズ
+    const displayEl = document.getElementById('flash-text');
+    displayEl.style.visibility = 'visible';
+    if(isFlipMode) displayEl.classList.add('flip'); else displayEl.classList.remove('flip');
+
+    for(let val of displayValues) {
+        displayEl.innerText = val;
+        await new Promise(r => setTimeout(r, speed));
+        displayEl.innerText = "";
+        await new Promise(r => setTimeout(r, 100));
+    }
+
+    showInputArea(answer);
 }
-function confirmRetire(){
-    if(confirm("ゲームを終了してメニューに戻りますか？")){
-        window.location.href="/reset";
+
+function convertText(num, mode) {
+    if(mode === 'kanji') return KANJI[num];
+    if(mode === 'roman') return ROMAN[num];
+    if(mode === 'mix') {
+        const r = Math.random();
+        if(r < 0.33) return KANJI[num];
+        if(r < 0.66) return ROMAN[num];
+    }
+    return num;
+}
+
+function showInputArea(correctAnswer) {
+    const area = document.getElementById('input-area');
+    const container = document.getElementById('choices-container');
+    container.innerHTML = '';
+    area.style.display = 'block';
+
+    // 選択肢作成（簡易版）
+    let choices = [correctAnswer];
+    while(choices.length < 4) {
+        let wrong = correctAnswer + (Math.floor(Math.random() * 10) - 5);
+        if(wrong !== correctAnswer && wrong >= 0 && !choices.includes(wrong)) choices.push(wrong);
+    }
+    choices.sort(() => Math.random() - 0.5);
+
+    choices.forEach(c => {
+        const btn = document.createElement('button');
+        btn.className = 'choice-btn';
+        btn.innerText = c;
+        btn.onclick = () => checkAnswer(c, correctAnswer);
+        container.appendChild(btn);
+    });
+}
+
+function checkAnswer(selected, correct) {
+    if(selected == correct) {
+        currentScore += currentLevel * 10;
+        currentLevel++;
+        if(currentScore > highScore) {
+            highScore = currentScore;
+            localStorage.setItem('flash_high_score', highScore);
+        }
+        document.getElementById('message-overlay').style.display = 'block';
+        setTimeout(() => {
+            document.getElementById('message-overlay').style.display = 'none';
+            document.getElementById('input-area').style.display = 'none';
+            startGameLoop();
+        }, 1000);
+    } else {
+        alert("ゲームオーバー！ Score: " + currentScore);
+        location.reload();
     }
 }
-</script>
 
+function updateHUD() {
+    document.getElementById('current-level').innerText = currentLevel;
+    document.getElementById('current-score').innerText = currentScore;
+}
+
+function confirmRetire(){
+    if(confirm("リタイアしますか？")) location.reload();
+}
+</script>
 </body>
 </html>
