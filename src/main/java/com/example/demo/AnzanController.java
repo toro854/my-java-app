@@ -31,7 +31,7 @@ public class AnzanController {
 
         return "index";
     }
-}
+
     @GetMapping("/start")
     public String start(
         @RequestParam(defaultValue = "normal") String mode,
