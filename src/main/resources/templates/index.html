@@ -1,43 +1,83 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <title>フラッシュ・トレーニング・プロ</title>
-    <style>
-        body { font-family: 'Helvetica Neue', Arial, sans-serif; text-align: center; background: #f4f7f6; color: #333; }
-        #game-container { background: white; max-width: 600px; margin: 30px auto; padding: 40px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-        .mode-btn { display: block; width: 280px; margin: 15px auto; padding: 15px; background: #3498db; color: white; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; transition: 0.3s; }
-        .mode-btn:hover { background: #2980b9; transform: translateY(-2px); }
-        .back-btn { background: #95a5a6; }
-        #flash-text { font-size: 120px; font-weight: bold; height: 200px; display: flex; align-items: center; justify-content: center; }
-        .choice-btn { font-size: 24px; padding: 15px 30px; margin: 10px; cursor: pointer; border: 2px solid #3498db; background: white; border-radius: 10px; transition: 0.2s; }
-        .choice-btn:hover { background: #3498db; color: white; }
-        #message-overlay { display:none; font-size:40px; color:#2ecc71; font-weight:bold; margin-top:20px; }
-        #input-area { display:none; margin-top:20px; }
-    </style>
+<meta charset="UTF-8">
+<title>フラッシュ・トレーニング・プロ 完全版</title>
+<style>
+body { font-family: 'Helvetica Neue', Arial, sans-serif; text-align: center; background: #f4f7f6; color: #333; }
+#game-container { background: white; max-width: 600px; margin: 30px auto; padding: 40px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+.mode-btn { display: block; width: 280px; margin: 15px auto; padding: 15px; background: #3498db; color: white; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+.mode-btn:hover { background: #2980b9; transform: translateY(-2px); }
+.back-btn { background: #95a5a6; }
+#flash-text { font-size: 120px; font-weight: bold; height: 200px; display: flex; align-items: center; justify-content: center; }
+.choice-btn { font-size: 24px; padding: 15px 30px; margin: 10px; cursor: pointer; border: 2px solid #3498db; background: white; border-radius: 10px; transition: 0.2s; }
+.choice-btn:hover { background: #3498db; color: white; }
+</style>
 </head>
 <body>
 
 <div id="game-container">
     <!-- メニュー画面 -->
-    <div th:if="${!gameStarted}" id="menu-screen">
-        <h1>トレーニング選択</h1>
-        <button class="mode-btn" onclick="selectGameType('anzan')">フラッシュ暗算</button>
-        <button class="mode-btn" onclick="selectGameType('memory')" style="background:#9b59b6;">フラッシュ記憶</button>
-        <p style="margin-top:20px;">High Score: [[${highScore}]]</p>
+    <div id="menu-screen">
+        <div id="step-0">
+            <h1>トレーニング選択</h1>
+            <button class="mode-btn" onclick="selectGameType('anzan')">フラッシュ暗算</button>
+            <button class="mode-btn" onclick="selectGameType('memory')" style="background:#9b59b6;">フラッシュ記憶</button>
+            <p style="margin-top:20px;">High Score: [[${highScore}]]</p>
+        </div>
+
+        <div id="step-1" style="display:none;">
+            <h2 id="current-game-title"></h2>
+            <button class="mode-btn" onclick="goToStep2('normal')">通常モード</button>
+            <button class="mode-btn" onclick="goToStep2('challenge')" style="background:#e67e22;">チャレンジモード</button>
+            <button class="mode-btn back-btn" onclick="backToStep0()">← 戻る</button>
+        </div>
+
+        <div id="step-normal-1" style="display:none;">
+            <h3>1. 文字種を選択</h3>
+            <button class="mode-btn" onclick="setSubMode('num')">数字のみ</button>
+            <button class="mode-btn" onclick="setSubMode('kanji')">漢数字のみ</button>
+            <button class="mode-btn" onclick="setSubMode('roman')">旧漢数字のみ</button>
+            <button class="mode-btn" onclick="setSubMode('mix')">複合 (数字/漢字/旧漢数字)</button>
+            <button class="mode-btn back-btn" onclick="backToStep1()">戻る</button>
+        </div>
+
+        <div id="step-normal-2" style="display:none;">
+            <h3>2. ギミックを選択</h3>
+            <button class="mode-btn" onclick="finalStart(true)" style="background:#e74c3c;">反転あり</button>
+            <button class="mode-btn" onclick="finalStart(false)" style="background:#2ecc71;">なし</button>
+            <button class="mode-btn back-btn" onclick="goToStep2('normal')">戻る</button>
+        </div>
+
+        <div id="step-normal-level" style="display:none;">
+            <h3>2. 開始レベルを選択</h3>
+            <button class="mode-btn" onclick="setStartLevel(1)">レベル 1</button>
+            <button class="mode-btn" onclick="setStartLevel(5)" style="background:#f1c40f;">レベル 5</button>
+            <button class="mode-btn" onclick="setStartLevel(10)" style="background:#e67e22;">レベル 10</button>
+            <button class="mode-btn back-btn" onclick="backToStepNormal1()">戻る</button>
+        </div>
+
+        <div id="step-challenge" style="display:none;">
+            <h3>チャレンジを選択</h3>
+            <button class="mode-btn" onclick="startChallenge(1)">Lv.1</button>
+            <button class="mode-btn" onclick="startChallenge(2)">Lv.2</button>
+            <button class="mode-btn" onclick="startChallenge(3)">Lv.3</button>
+            <button class="mode-btn back-btn" onclick="backToStep1()">戻る</button>
+        </div>
     </div>
 
     <!-- ゲーム画面 -->
-    <div th:if="${gameStarted}">
-        <div style="display:flex; justify-content: space-between; margin-bottom:20px;">
-            <span>Level: [[${level}]]</span>
-            <span style="color:#27ae60; font-weight:bold;">Score: [[${score}]]</span>
+    <div id="game-screen" style="display:none;">
+        <div style="text-align: right; margin-bottom: 5px;">
+            <button onclick="confirmRetire()" style="padding: 4px 12px; font-size: 12px; background: #e74c3c; color: white; border: none; border-radius: 4px; cursor: pointer; opacity: 0.8;">リタイア</button>
         </div>
-
-        <div id="flash-text"></div>
-        <div id="message-overlay">正解！</div>
-
-        <div id="input-area">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+            <span>Level: [[${level}]]</span>
+            <span style="color: #27ae60; font-weight: bold;">Score: [[${score}]]</span>
+        </div>
+        <div id="flash-text" style="visibility: hidden;"></div>
+        <div id="message-overlay" style="display: none; font-size: 40px; color: #2ecc71; font-weight: bold;">正解！</div>
+        <div id="input-area" style="display: none; margin-top: 20px;">
             <div id="question-label"></div>
             <div id="choices-container"></div>
             <div id="timer-bar-container" style="width:100%; height:10px; background:#eee; margin-top:20px;">
@@ -48,116 +88,56 @@
 </div>
 
 <script th:inline="javascript">
-/*<![CDATA[*/
-const gameStarted = /*[[${gameStarted}]]*/ false;
-const numbers = /*[[${numbers}]]*/ [];
-const correctAnswer = /*[[${answer}]]*/ 0;
-const speed = /*[[${speed}]]*/ 500;
-const fullMode = '[[${mode}]]';
-const level = /*[[${level}]]*/ 1;
+let selectedType='', tempMainMode='', tempSubMode='', tempStartLevel=1;
 
-const kanjiList = ["零","一","二","三","四","五","六","七","八","九"];
-const romanList = ["","壱","弐","参","肆","伍","陸","漆","捌","玖"];
-
-let currentIndex = 0;
-let timerInterval = null;
-let timeLeft = 100;
-
-function getRandomChar(val){
-    const r = Math.random();
-    if(r > 2/3) return kanjiList[val] || val;
-    if(r > 1/3) return romanList[val] || val;
-    return val;
+function selectGameType(type){
+    selectedType=type;
+    document.getElementById('step-0').style.display='none';
+    document.getElementById('step-1').style.display='block';
+    document.getElementById('current-game-title').innerText=(type==='anzan')?"フラッシュ暗算":"フラッシュ記憶";
 }
-function getRandomTransform(){
-    const r = Math.random();
-    if(r>3/4) return "rotate(90deg)";
-    if(r>2/4) return "rotate(-90deg)";
-    if(r>1/4) return "scaleX(-1)";
-    return "rotate(360deg)";
+function backToStep0(){
+    document.getElementById('step-0').style.display='block';
+    document.getElementById('step-1').style.display='none';
 }
-
-function startGame(){
-    const textElement = document.getElementById('flash-text');
-    textElement.style.visibility = 'visible';
-    const gameClock = setInterval(() => {
-        if(currentIndex < numbers.length){
-            let val = numbers[currentIndex];
-            let displayText = val;
-            let transform = "rotate(0deg)";
-
-            if(fullMode.includes("_kanji")) displayText = kanjiList[val];
-            if(fullMode.includes("_roman")) displayText = romanList[val];
-            if(fullMode.includes("_mix") || fullMode.includes("challenge_2") || fullMode.includes("challenge_3")){
-                displayText = getRandomChar(val);
-            }
-            if(fullMode.includes("_flip") || fullMode.includes("challenge_3")){
-                transform = getRandomTransform();
-            }
-
-            textElement.innerText = displayText;
-            textElement.style.transform = transform;
-
-            currentIndex++;
-        } else {
-            clearInterval(gameClock);
-            textElement.style.display = 'none';
-            initInputPhase();
-        }
-    }, speed);
+function goToStep2(mode){
+    tempMainMode=mode;
+    document.getElementById('step-1').style.display='none';
+    if(mode==='normal') document.getElementById('step-normal-1').style.display='block';
+    else document.getElementById('step-challenge').style.display='block';
 }
-
-function initInputPhase(){
-    document.getElementById('input-area').style.display = 'block';
-    document.getElementById('question-label').innerHTML = "<h3>合計はいくつ？</h3>";
-
-    const container = document.getElementById('choices-container');
-    container.innerHTML = "";
-    let choices = [correctAnswer];
-    while(choices.length<4){
-        let wrong = correctAnswer + (Math.floor(Math.random()*11)-5);
-        if(wrong>0 && !choices.includes(wrong)) choices.push(wrong);
-    }
-    choices.sort(()=>Math.random()-0.5);
-    choices.forEach(val=>{
-        const btn = document.createElement('button');
-        btn.className = 'choice-btn';
-        btn.innerText = val;
-        btn.onclick = () => checkAnzanAnswer(val);
-        container.appendChild(btn);
-    });
-
-    startTimer(5000);
+function backToStep1(){
+    document.getElementById('step-1').style.display='block';
+    document.getElementById('step-normal-1').style.display='none';
+    document.getElementById('step-challenge').style.display='none';
 }
-
-function startTimer(duration){
-    timeLeft = 100;
-    timerInterval = setInterval(()=>{
-        timeLeft -= 1;
-        document.getElementById('timer-bar').style.width = timeLeft+"%";
-        if(timeLeft<=0){
-            clearInterval(timerInterval);
-            alert("時間切れ！");
-            window.location.replace("/reset");
-        }
-    }, duration/100);
+function setSubMode(sub){
+    tempSubMode=sub;
+    document.getElementById('step-normal-1').style.display='none';
+    document.getElementById('step-normal-level').style.display='block';
 }
-
-function checkAnzanAnswer(selected){
-    clearInterval(timerInterval);
-    if(selected===correctAnswer){
-        document.getElementById('message-overlay').style.display = 'block';
-        setTimeout(()=>window.location.replace("/next?bonus="+(timeLeft/100)), 800);
-    } else {
-        alert("残念！正解は "+correctAnswer);
-        window.location.replace("/reset");
+function setStartLevel(lv){
+    tempStartLevel=lv;
+    document.getElementById('step-normal-level').style.display='none';
+    document.getElementById('step-normal-2').style.display='block';
+}
+function backToStepNormal1(){
+    document.getElementById('step-normal-level').style.display='none';
+    document.getElementById('step-normal-1').style.display='block';
+}
+function finalStart(isFlip){
+    const modeStr=`${selectedType}_normal_${tempSubMode}_${isFlip?'flip':'noflip'}`;
+    window.location.href=`/start?mode=${modeStr}&startLevel=${tempStartLevel}`;
+}
+function startChallenge(lv){
+    const modeStr=`${selectedType}_challenge_${lv}`;
+    window.location.href=`/start?mode=${modeStr}&startLevel=1`;
+}
+function confirmRetire(){
+    if(confirm("ゲームを終了してメニューに戻りますか？")){
+        window.location.href="/reset";
     }
 }
-
-if(gameStarted){
-    window.onload = () => setTimeout(startGame, 500);
-}
-/*]]>*/
 </script>
 
 </body>
