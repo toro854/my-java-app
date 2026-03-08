@@ -12,15 +12,13 @@
         .mode-btn:hover { background: #2980b9; transform: translateY(-2px); }
         .back-btn { background: #95a5a6; }
         
-        /* フラッシュ表示エリアの固定 */
         #flash-wrapper { height: 160px; display: flex; align-items: center; justify-content: center; margin: 10px 0; position: relative; }
-        #flash-text { font-size: 100px; font-weight: bold; width: 120px; height: 120px; display: flex; align-items: center; justify-content: center; transition: none; }
-
-	/* 判別用アンダーラインの追加 */
-        .underline { text-decoration: underline; text-underline-offset: 5px; text-decoration-thickness: 5px; }
-
+        #flash-text { font-size: 100px; font-weight: bold; width: 140px; height: 140px; display: flex; align-items: center; justify-content: center; }
         
-        /* ギミック用：位置をズラさないための設定 */
+        /* 判別用アンダーライン */
+        .underline { text-decoration: underline; text-underline-offset: 8px; text-decoration-thickness: 6px; }
+
+        /* ギミック用クラス */
         .effect-none { transform: rotate(0deg) scaleX(1); }
         .effect-flip { transform: scaleX(-1); }
         .effect-rotate90 { transform: rotate(90deg); }
@@ -122,11 +120,21 @@ function startInit() {
 
 async function runRound() {
     numbers = []; answerIndex = 0;
+    
+    // チャレンジモード時のギミック・文字種設定を確定
     if(mainMode === 'challenge') {
-        if(challengeLevel === 1) { subMode = 'num'; isFlip = (level >= 5); }
-        if(challengeLevel === 2) { subMode = 'mix'; isFlip = false; }
-        if(challengeLevel === 3) { subMode = 'mix'; isFlip = true; }
+        if(challengeLevel === 1) { 
+            subMode = 'num'; 
+            isFlip = (level >= 5); // Lv.5以上でギミック有効
+        } else if(challengeLevel === 2) { 
+            subMode = 'mix'; 
+            isFlip = false; 
+        } else if(challengeLevel === 3) { 
+            subMode = 'mix'; 
+            isFlip = true; 
+        }
     }
+
     const count = 3 + Math.floor(level / 3);
     const speed = Math.max(120, 500 - (level * 60));
     document.getElementById('lv-ui').innerText = level;
@@ -139,17 +147,19 @@ async function runRound() {
         let n = Math.floor(Math.random() * 9) + 1;
         numbers.push(n);
         
-        display.className = ""; 
+        display.className = ""; // クラスリセット
+        
         if(isFlip) {
             let r = Math.random();
+            // 1/4の確率で各効果（チャレンジモードLv.1後半・Lv.3でも適用される）
             if(r < 0.25) display.className = "effect-none";
             else if(r < 0.5) display.className = "effect-flip";
             else if(r < 0.75) display.className = "effect-rotate90";
             else display.className = "effect-rotate-90";
 
-		if(subMode === 'num') {
-                display.classList.add('underline');
-            }
+            // 数字モード（数字のみ、または混合）で、かつ回転が発生しているならアンダーライン表示
+            // ※「混合」で漢字が出ているときの下線はCSSで自動調整されます（文字種問わず下線は引かれます）
+            display.classList.add('underline');
         }
 
         display.innerText = convert(n);
@@ -221,11 +231,18 @@ function triggerSuccessEffect() {
     const feedback = document.getElementById('feedback-text');
     container.classList.add('flash-success');
     feedback.classList.add('show-feedback');
-    let multiplier = (mainMode === 'challenge' && challengeLevel === 2) ? 2 : (mainMode === 'challenge' && challengeLevel === 3) ? 4 : 1;
+    
+    let multiplier = 1;
+    if(mainMode === 'challenge') {
+        if(challengeLevel === 2) multiplier = 2;
+        if(challengeLevel === 3) multiplier = 4;
+    }
+    
     let base = (level * 1000) * multiplier;
     let speedBonus = (timeLeft / 100) * base;
     score += (base + speedBonus);
     document.getElementById('sc-ui').innerText = Math.floor(score);
+    
     setTimeout(() => {
         container.classList.remove('flash-success');
         feedback.classList.remove('show-feedback');
