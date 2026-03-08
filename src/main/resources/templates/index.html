@@ -11,9 +11,12 @@
         .mode-btn { display: block; width: 100%; max-width: 280px; margin: 12px auto; padding: 15px; background: #3498db; color: white; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; transition: 0.3s; }
         .mode-btn:hover { background: #2980b9; transform: translateY(-2px); }
         .back-btn { background: #95a5a6; }
-        #flash-text { font-size: 100px; font-weight: bold; height: 160px; display: flex; align-items: center; justify-content: center; margin: 10px 0; transition: transform 0.1s; }
         
-        /* ギミック用クラス */
+        /* フラッシュ表示エリアの固定 */
+        #flash-wrapper { height: 160px; display: flex; align-items: center; justify-content: center; margin: 10px 0; position: relative; }
+        #flash-text { font-size: 100px; font-weight: bold; width: 120px; height: 120px; display: flex; align-items: center; justify-content: center; transition: none; }
+        
+        /* ギミック用：位置をズラさないための設定 */
         .effect-none { transform: rotate(0deg) scaleX(1); }
         .effect-flip { transform: scaleX(-1); }
         .effect-rotate90 { transform: rotate(90deg); }
@@ -28,7 +31,7 @@
         
         @keyframes correct-flash { 0% { background-color: #ffffff; } 50% { background-color: #d4edda; } 100% { background-color: #ffffff; } }
         .flash-success { animation: correct-flash 0.4s ease-out; }
-        #feedback-text { position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%); font-size: 60px; font-weight: bold; color: #2ecc71; pointer-events: none; opacity: 0; }
+        #feedback-text { position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%); font-size: 60px; font-weight: bold; color: #2ecc71; pointer-events: none; opacity: 0; z-index: 10; }
         @keyframes pop-up { 0% { opacity: 0; transform: translate(-50%, -30%) scale(0.5); } 50% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); } 100% { opacity: 0; transform: translate(-50%, -70%) scale(1); } }
         .show-feedback { animation: pop-up 0.6s forwards; }
     </style>
@@ -60,7 +63,8 @@
         <div id="step-normal-level" style="display:none;">
             <h3>開始レベル</h3>
             <button class="mode-btn" onclick="level=1; setStep('step-normal-level','step-normal-2')">Lv.1</button>
-            <button class="mode-btn" onclick="level=5; setStep('step-normal-level','step-normal-2')">Lv.5</button>
+            <button class="mode-btn" onclick="level=3; setStep('step-normal-level','step-normal-2')">Lv.3</button>
+            <button class="mode-btn" onclick="level=7; setStep('step-normal-level','step-normal-2')">Lv.7</button>
             <button class="mode-btn" onclick="level=10; setStep('step-normal-level','step-normal-2')">Lv.10</button>
         </div>
         <div id="step-normal-2" style="display:none;">
@@ -83,7 +87,9 @@
             <span>Lv: <span id="lv-ui">1</span></span>
             <span style="color:#27ae60;">Score: <span id="sc-ui">0</span></span>
         </div>
-        <div id="flash-text"></div>
+        <div id="flash-wrapper">
+            <div id="flash-text"></div>
+        </div>
         <div id="input-area" style="display:none;">
             <div id="answer-progress"></div>
             <div id="timer-container"><div id="timer-bar"></div></div>
@@ -129,8 +135,7 @@ async function runRound() {
         let n = Math.floor(Math.random() * 9) + 1;
         numbers.push(n);
         
-        // ギミック抽選 (1/4ずつの確率)
-        display.className = ""; // クラスリセット
+        display.className = ""; 
         if(isFlip) {
             let r = Math.random();
             if(r < 0.25) display.className = "effect-none";
@@ -142,7 +147,7 @@ async function runRound() {
         display.innerText = convert(n);
         await new Promise(r => setTimeout(r, speed));
         display.innerText = '';
-        display.className = ""; // 表示終了後にリセット
+        display.className = ""; 
         await new Promise(r => setTimeout(r, 100));
     }
     setupChoices();
