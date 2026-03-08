@@ -13,7 +13,7 @@
         .back-btn { background: #95a5a6; }
         #flash-text { font-size: 100px; font-weight: bold; height: 160px; display: flex; align-items: center; justify-content: center; margin: 10px 0; }
         .flip { transform: scaleX(-1); }
-        .choice-btn { font-size: 22px; padding: 15px; width: 45%; margin: 5px; cursor: pointer; border: 2px solid #3498db; background: white; border-radius: 10px; transition: 0.2s; }
+        .choice-btn { font-size: 22px; padding: 15px; width: 45%; margin: 5px; cursor: pointer; border: 2px solid #3498db; background: white; border-radius: 10px; transition: 0.2s; box-sizing: border-box; }
         .choice-btn:hover { background: #3498db; color: white; }
         #timer-container { width: 100%; height: 10px; background: #eee; border-radius: 5px; margin: 15px 0; overflow: hidden; display: none; }
         #timer-bar { width: 100%; height: 100%; background: #e74c3c; }
@@ -137,16 +137,19 @@ function convert(n) {
 }
 
 function setupChoices() {
-    document.getElementById('input-area').style.display = 'block';
-    document.getElementById('timer-container').style.display = 'block';
+    const inputArea = document.getElementById('input-area');
+    const timerContainer = document.getElementById('timer-container');
+    inputArea.style.display = 'block';
+    timerContainer.style.display = 'block';
+    
     if(selectedType === 'anzan') {
+        currentDuration = 5000;
         document.getElementById('answer-progress').innerText = "合計は？";
         createChoiceButtons(numbers.reduce((a,b)=>a+b, 0));
-        currentDuration = 5000; // 暗算は5秒
     } else {
+        currentDuration = 20000;
         updateMemoryProgress();
         createChoiceButtons(numbers[answerIndex]);
-        currentDuration = 20000; // 記憶は20秒
     }
     startTimer(currentDuration); 
 }
@@ -155,13 +158,22 @@ function createChoiceButtons(correct) {
     const container = document.getElementById('choices-container');
     container.innerHTML = '';
     let choices = [correct];
+    
     while(choices.length < 4) {
-        let fake = (selectedType === 'memory') 
-            ? Math.floor(Math.random()*9)+1 
-            : correct + (Math.floor(Math.random()*11) - 5);
-        if(fake >= 0 && !choices.includes(fake)) choices.push(fake);
+        let fake;
+        if(selectedType === 'memory') {
+            fake = Math.floor(Math.random() * 9) + 1;
+        } else {
+            fake = correct + (Math.floor(Math.random() * 11) - 5);
+        }
+        
+        if(fake >= 0 && !choices.includes(fake)) {
+            choices.push(fake);
+        }
     }
+    
     choices.sort(() => Math.random() - 0.5);
+    
     choices.forEach(val => {
         const btn = document.createElement('button');
         btn.className = 'choice-btn';
@@ -181,6 +193,7 @@ function handleInput(selected, correct) {
             success();
         } else {
             updateMemoryProgress();
+            // 次の正解を渡して新しいボタンを生成
             createChoiceButtons(numbers[answerIndex]);
         }
     }
@@ -193,21 +206,27 @@ function startTimer(duration) {
     timerInterval = setInterval(() => {
         let delta = Date.now() - start;
         timeLeft = 100 - (delta / duration * 100);
-        bar.style.width = timeLeft + "%";
-        if(timeLeft <= 0) gameOver("時間切れ！");
+        bar.style.width = Math.max(0, timeLeft) + "%";
+        if(timeLeft <= 0) {
+            clearInterval(timerInterval);
+            gameOver("時間切れ！");
+        }
     }, 50);
+}
+
+function updateMemoryProgress() {
+    document.getElementById('answer-progress').innerText = `順番に選択 (${answerIndex+1}/${numbers.length})`;
 }
 
 function success() {
     clearInterval(timerInterval);
-    // スコア計算: (Lv×1000 × 倍率) + (残り時間比例ボーナス)
     let multiplier = 1;
     if(mainMode === 'challenge') {
         if(challengeLevel === 2) multiplier = 2;
         if(challengeLevel === 3) multiplier = 4;
     }
     let base = (level * 1000) * multiplier;
-    let speedBonus = (timeLeft / 100) * base; // 残り時間が半分ならベースの50%加算
+    let speedBonus = (timeLeft / 100) * base;
     score += (base + speedBonus);
     
     level++;
