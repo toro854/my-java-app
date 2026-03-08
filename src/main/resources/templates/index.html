@@ -3,176 +3,223 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>フラッシュ・トレーニング・プロ</title>
+    <title>フラッシュ・トレーニング・プロ 完全版</title>
     <link rel="icon" href="data:,">
     <style>
         body { font-family: 'Helvetica Neue', Arial, sans-serif; text-align: center; background: #f4f7f6; color: #333; margin: 0; padding: 20px; }
-        #game-container { background: white; max-width: 500px; margin: 0 auto; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); min-height: 450px; }
-        .mode-btn { display: block; width: 100%; max-width: 250px; margin: 10px auto; padding: 15px; background: #3498db; color: white; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; }
-        #flash-text { font-size: 100px; font-weight: bold; height: 150px; display: flex; align-items: center; justify-content: center; margin: 20px 0; }
-        .choice-btn { font-size: 22px; width: 60px; height: 60px; margin: 5px; cursor: pointer; border: 2px solid #3498db; background: white; border-radius: 10px; }
-        .choice-btn:active { background: #3498db; color: white; }
-        
-        /* タイマーバーのスタイル */
-        #timer-container { width: 100%; height: 8px; background: #eee; border-radius: 4px; margin: 20px 0; display: none; overflow: hidden; }
-        #timer-bar { width: 100%; height: 100%; background: #e74c3c; }
-        
-        #answer-progress { font-size: 18px; margin-bottom: 10px; color: #2980b9; height: 25px; }
+        #game-container { background: white; max-width: 600px; margin: 0 auto; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); min-height: 500px; position: relative; }
+        .mode-btn { display: block; width: 100%; max-width: 280px; margin: 12px auto; padding: 15px; background: #3498db; color: white; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .mode-btn:hover { background: #2980b9; transform: translateY(-2px); }
+        .back-btn { background: #95a5a6; }
+        #flash-text { font-size: 100px; font-weight: bold; height: 180px; display: flex; align-items: center; justify-content: center; margin: 20px 0; }
+        .flip { transform: scaleX(-1); }
+        .choice-btn { font-size: 22px; padding: 15px; width: 45%; margin: 5px; cursor: pointer; border: 2px solid #3498db; background: white; border-radius: 10px; transition: 0.2s; }
+        .choice-btn:hover { background: #3498db; color: white; }
+        #timer-container { width: 100%; height: 10px; background: #eee; border-radius: 5px; margin: 20px 0; overflow: hidden; display: none; }
+        #timer-bar { width: 100%; height: 100%; background: #e74c3c; transition: width 0.1s linear; }
+        #answer-progress { font-size: 20px; color: #2980b9; font-weight: bold; margin-bottom: 10px; }
     </style>
 </head>
 <body>
 
 <div id="game-container">
     <div id="menu-screen">
-        <h1>フラッシュ・プロ</h1>
-        <button class="mode-btn" onclick="startGame('anzan')">フラッシュ暗算</button>
-        <button class="mode-btn" onclick="startGame('memory')" style="background:#9b59b6;">フラッシュ記憶</button>
-        <p>High Score: <span id="hi-score">0</span></p>
+        <div id="step-0">
+            <h1>トレーニング選択</h1>
+            <button class="mode-btn" onclick="setStep('step-0','step-1'); selectedType='anzan';">フラッシュ暗算</button>
+            <button class="mode-btn" onclick="setStep('step-0','step-1'); selectedType='memory';" style="background:#9b59b6;">フラッシュ記憶</button>
+            <p>High Score: <span id="hi-score">0</span></p>
+        </div>
+
+        <div id="step-1" style="display:none;">
+            <h2 id="current-game-title">モード選択</h2>
+            <button class="mode-btn" onclick="setStep('step-1','step-normal-1')">通常モード</button>
+            <button class="mode-btn" onclick="setStep('step-1','step-challenge')" style="background:#e67e22;">チャレンジモード</button>
+            <button class="mode-btn back-btn" onclick="setStep('step-1','step-0')">← 戻る</button>
+        </div>
+
+        <div id="step-normal-1" style="display:none;">
+            <h3>1. 文字種を選択</h3>
+            <button class="mode-btn" onclick="subMode='num'; setStep('step-normal-1','step-normal-level')">数字のみ</button>
+            <button class="mode-btn" onclick="subMode='kanji'; setStep('step-normal-1','step-normal-level')">漢数字</button>
+            <button class="mode-btn" onclick="subMode='roman'; setStep('step-normal-1','step-normal-level')">旧漢数字</button>
+            <button class="mode-btn" onclick="subMode='mix'; setStep('step-normal-1','step-normal-level')">複合</button>
+            <button class="mode-btn back-btn" onclick="setStep('step-normal-1','step-1')">戻る</button>
+        </div>
+
+        <div id="step-normal-level" style="display:none;">
+            <h3>2. 開始レベル</h3>
+            <button class="mode-btn" onclick="level=1; setStep('step-normal-level','step-normal-2')">Lv.1</button>
+            <button class="mode-btn" onclick="level=5; setStep('step-normal-level','step-normal-2')">Lv.5</button>
+            <button class="mode-btn" onclick="level=10; setStep('step-normal-level','step-normal-2')">Lv.10</button>
+            <button class="mode-btn back-btn" onclick="setStep('step-normal-level','step-normal-1')">戻る</button>
+        </div>
+
+        <div id="step-normal-2" style="display:none;">
+            <h3>3. ギミック</h3>
+            <button class="mode-btn" onclick="isFlip=true; startInit()" style="background:#e74c3c;">反転あり</button>
+            <button class="mode-btn" onclick="isFlip=false; startInit()" style="background:#2ecc71;">なし</button>
+            <button class="mode-btn back-btn" onclick="setStep('step-normal-2','step-normal-level')">戻る</button>
+        </div>
+
+        <div id="step-challenge" style="display:none;">
+            <h3>チャレンジ</h3>
+            <button class="mode-btn" onclick="level=1; isFlip=false; startInit()">Lv.1</button>
+            <button class="mode-btn" onclick="level=5; isFlip=true; startInit()">Lv.5 (反転)</button>
+            <button class="mode-btn back-btn" onclick="setStep('step-challenge','step-1')">戻る</button>
+        </div>
     </div>
 
     <div id="game-screen" style="display:none;">
         <div style="display: flex; justify-content: space-between; font-weight: bold;">
-            <span>Lv: <span id="lv-display">1</span></span>
-            <span>Score: <span id="score-display">0</span></span>
+            <span>Level: <span id="lv-ui">1</span></span>
+            <span style="color:#27ae60;">Score: <span id="sc-ui">0</span></span>
         </div>
-        
         <div id="flash-text"></div>
-        
         <div id="input-area" style="display:none;">
             <div id="answer-progress"></div>
             <div id="timer-container"><div id="timer-bar"></div></div>
             <div id="choices-container"></div>
-            <div id="anzan-input-wrap" style="display:none; margin-top:10px;">
-                <input type="number" id="anzan-field" style="font-size:24px; width:120px; padding:5px;">
-                <button class="mode-btn" onclick="submitAnzan()" style="margin-top:10px;">決定</button>
-            </div>
         </div>
+        <button onclick="location.reload()" style="margin-top:20px; font-size:12px; color:red; border:none; background:none; cursor:pointer;">リタイアして戻る</button>
     </div>
 </div>
 
 <script>
-let gameType = '', level = 1, score = 0, numbers = [], answerIndex = 0;
-let timerInterval, timeLeft;
-const TIME_LIMIT = 5000; // 5秒制限
+let selectedType='', subMode='num', level=1, score=0, isFlip=false;
+let numbers=[], answerIndex=0, timerInterval, timeLeft;
 
-// ハイスコア読み込み
-document.getElementById('hi-score').innerText = localStorage.getItem('flash_hi') || 0;
+const KANJI = ["〇", "一", "二", "三", "四", "五", "六", "七", "八", "九"];
+const ROMAN = ["零", "壱", "弐", "参", "肆", "伍", "陸", "漆", "捌", "玖"];
 
-async function startGame(type) {
-    gameType = type;
+function setStep(old, next) {
+    document.getElementById(old).style.display = 'none';
+    document.getElementById(next).style.display = 'block';
+}
+
+function startInit() {
     document.getElementById('menu-screen').style.display = 'none';
     document.getElementById('game-screen').style.display = 'block';
-    await runRound();
+    score = 0;
+    runRound();
 }
 
 async function runRound() {
-    numbers = [];
-    answerIndex = 0;
+    numbers = []; answerIndex = 0;
     const count = 3 + Math.floor(level / 3);
     const speed = Math.max(200, 1000 - (level * 50));
     
-    // 問題生成
-    for(let i=0; i<count; i++) numbers.push(Math.floor(Math.random() * 9) + 1);
-
-    // 数値表示フェーズ
-    const display = document.getElementById('flash-text');
+    document.getElementById('lv-ui').innerText = level;
+    document.getElementById('sc-ui').innerText = score;
     document.getElementById('input-area').style.display = 'none';
     
-    for(let n of numbers) {
-        display.innerText = n;
+    const display = document.getElementById('flash-text');
+    if(isFlip) display.classList.add('flip'); else display.classList.remove('flip');
+
+    for(let i=0; i<count; i++) {
+        let n = Math.floor(Math.random() * 9) + 1;
+        numbers.push(n);
+        display.innerText = convert(n);
         await new Promise(r => setTimeout(r, speed));
         display.innerText = '';
         await new Promise(r => setTimeout(r, 100));
     }
-
-    startInuptPhase();
+    setupChoices();
 }
 
-function startInuptPhase() {
+function convert(n) {
+    if(subMode==='kanji') return KANJI[n];
+    if(subMode==='roman') return ROMAN[n];
+    if(subMode==='mix') {
+        let r = Math.random();
+        return r < 0.3 ? KANJI[n] : (r < 0.6 ? ROMAN[n] : n);
+    }
+    return n;
+}
+
+function setupChoices() {
     document.getElementById('input-area').style.display = 'block';
     document.getElementById('timer-container').style.display = 'block';
     const container = document.getElementById('choices-container');
     container.innerHTML = '';
-    
-    if(gameType === 'anzan') {
-        document.getElementById('anzan-input-wrap').style.display = 'block';
+
+    if(selectedType === 'anzan') {
         document.getElementById('answer-progress').innerText = "合計は？";
-        document.getElementById('anzan-field').value = '';
-        document.getElementById('anzan-field').focus();
+        const sum = numbers.reduce((a,b)=>a+b, 0);
+        createChoiceButtons(sum);
     } else {
-        document.getElementById('anzan-input-wrap').style.display = 'none';
         updateMemoryProgress();
-        // 1-9のテンキー作成
-        for(let i=1; i<=9; i++) {
-            const btn = document.createElement('button');
-            btn.className = 'choice-btn';
-            btn.innerText = i;
-            btn.onclick = () => handleMemoryInput(i);
-            container.appendChild(btn);
+        createChoiceButtons(numbers[answerIndex]);
+    }
+    startTimer();
+}
+
+function createChoiceButtons(correct) {
+    const container = document.getElementById('choices-container');
+    container.innerHTML = '';
+    let choices = [correct];
+    while(choices.length < 4) {
+        let fake = correct + (Math.floor(Math.random()*11) - 5);
+        if(fake >= 0 && !choices.includes(fake)) choices.push(fake);
+    }
+    choices.sort(() => Math.random() - 0.5);
+
+    choices.forEach(val => {
+        const btn = document.createElement('button');
+        btn.className = 'choice-btn';
+        btn.innerText = val;
+        btn.onclick = () => handleInput(val, correct);
+        container.appendChild(btn);
+    });
+}
+
+function handleInput(selected, correct) {
+    if(selected !== correct) return gameOver();
+
+    if(selectedType === 'anzan') {
+        success();
+    } else {
+        answerIndex++;
+        if(answerIndex === numbers.length) {
+            success();
+        } else {
+            updateMemoryProgress();
+            createChoiceButtons(numbers[answerIndex]);
+            // 記憶モードで1つ正解するたびにタイマーを少し回復
+            timeLeft = Math.min(100, timeLeft + 20);
         }
     }
-    
-    startTimer();
 }
 
 function startTimer() {
     clearInterval(timerInterval);
     timeLeft = 100;
     const bar = document.getElementById('timer-bar');
-    
     timerInterval = setInterval(() => {
-        timeLeft -= 1; // 100msごとに1%減少（計10秒制限に調整）
+        timeLeft -= 1.5; // 約6-7秒の制限
         bar.style.width = timeLeft + "%";
-        
-        if(timeLeft <= 0) {
-            clearInterval(timerInterval);
-            gameOver("時間切れ！");
-        }
-    }, 100); // 制限時間は約10秒（レベルに合わせて短くすることも可能）
-}
-
-function handleMemoryInput(val) {
-    if(val === numbers[answerIndex]) {
-        answerIndex++;
-        updateMemoryProgress();
-        if(answerIndex === numbers.length) {
-            success();
-        }
-    } else {
-        gameOver("不正解！");
-    }
-}
-
-function submitAnzan() {
-    const val = parseInt(document.getElementById('anzan-field').value);
-    const sum = numbers.reduce((a,b) => a+b, 0);
-    if(val === sum) success(); else gameOver("不正解！");
+        if(timeLeft <= 0) gameOver();
+    }, 100);
 }
 
 function updateMemoryProgress() {
-    document.getElementById('answer-progress').innerText = `入力中: ${answerIndex} / ${numbers.length}`;
+    document.getElementById('answer-progress').innerText = `順番に選択 (${answerIndex+1}/${numbers.length})`;
 }
 
 function success() {
     clearInterval(timerInterval);
-    score += level * 100;
+    score += level * 10;
     level++;
-    document.getElementById('score-display').innerText = score;
-    document.getElementById('lv-display').innerText = level;
-    
-    // ハイスコア更新
-    if(score > (localStorage.getItem('flash_hi') || 0)) {
-        localStorage.setItem('flash_hi', score);
-    }
-    
-    setTimeout(runRound, 500);
+    setTimeout(runRound, 600);
 }
 
-function gameOver(msg) {
+function gameOver() {
     clearInterval(timerInterval);
-    alert(msg + "\nScore: " + score);
+    alert("終了！ Score: " + score);
     location.reload();
 }
+
+document.getElementById('hi-score').innerText = localStorage.getItem('flash_hi') || 0;
 </script>
 </body>
 </html>
