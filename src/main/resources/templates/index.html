@@ -142,6 +142,10 @@ async function runRound() {
             else if(r < 0.5) display.className = "effect-flip";
             else if(r < 0.75) display.className = "effect-rotate90";
             else display.className = "effect-rotate-90";
+
+		if(subMode === 'num') {
+                display.classList.add('underline');
+            }
         }
 
         display.innerText = convert(n);
