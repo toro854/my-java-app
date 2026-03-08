@@ -66,7 +66,6 @@
             <button class="mode-btn" onclick="level=5; setStep('step-normal-level','step-normal-2')">Lv.5</button>
             <button class="mode-btn" onclick="level=10; setStep('step-normal-level','step-normal-2')">Lv.10</button>
             <button class="mode-btn" onclick="level=15; setStep('step-normal-level','step-normal-2')">Lv.15</button>
-            <button class="mode-btn" onclick="level=20; setStep('step-normal-level','step-normal-2')">Lv.20</button>
         </div>
         <div id="step-normal-2" style="display:none;">
             <h3>ギミック</h3>
@@ -125,7 +124,7 @@ async function runRound() {
         if(challengeLevel === 3) { subMode = 'mix'; isFlip = true; }
     }
     const count = 3 + Math.floor(level / 3);
-    const speed = Math.max(100, 500 - (level * 60));
+    const speed = Math.max(120, 500 - (level * 60));
     document.getElementById('lv-ui').innerText = level;
     document.getElementById('sc-ui').innerText = Math.floor(score);
     document.getElementById('input-area').style.display = 'none';
