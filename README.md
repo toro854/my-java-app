@@ -23,10 +23,13 @@ https://my-java-app-q9xd.onrender.com/
 - ## 📷 スクリーンショット
 
 - ゲーム画面
-<img src="images/sukusyo001.png" width="300">
-<img src="images/sukusyo002.png" width="300">
-<img src="images/sukusyo003.png" width="300">
-<img src="images/sukusyo004.png" width="300">
+- 
+<div class="image-grid">
+  <img src="images/sukusyo001.png">
+  <img src="images/sukusyo002.png">
+  <img src="images/sukusyo003.png">
+  <img src="images/sukusyo004.png">
+</div>
 
 ## 工夫した点
 - ゲームモードを分けて、異なる認知能力（計算力・記憶力）を鍛えられる設計にした
