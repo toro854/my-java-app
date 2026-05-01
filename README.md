@@ -23,10 +23,10 @@ https://my-java-app-q9xd.onrender.com/
 - ## 📷 スクリーンショット
 
 - ゲーム画面
-(images/sukusyo001.png)
-(images/sukusyo002.png)
-(images/sukusyo003.png)
-(images/sukusyo004.png)
+![画像](images/sukusyo001.png)
+![画像](images/sukusyo002.png)
+![画像](images/sukusyo003.png)
+![画像](images/sukusyo004.png)
 ## 工夫した点
 - ゲームモードを分けて、異なる認知能力（計算力・記憶力）を鍛えられる設計にした
 - レベル制を導入し、難易度調整を可能にした
