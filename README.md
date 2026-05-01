@@ -24,18 +24,16 @@ https://my-java-app-q9xd.onrender.com/
 
 - ゲーム画面
 
-.image-grid {
-  display: flex;
-  flex-wrap: wrap;
-}
-  <img src="images/sukusyo001.png"width="300">
-  <img src="images/sukusyo002.png"width="300">
-  <img src="images/sukusyo003.png"width="300">
-  <img src="images/sukusyo004.png"width="300">
-  
-.image-grid img {
-  width: 50%;
-}
+<table>
+  <tr>
+    <td><img src="images/sukusyo001.png" width="300"></td>
+    <td><img src="images/sukusyo002.png" width="300"></td>
+  </tr>
+  <tr>
+    <td><img src="images/sukusyo003.png" width="300"></td>
+    <td><img src="images/sukusyo004.png" width="300"></td>
+  </tr>
+</table>
 
 ## 工夫した点
 - ゲームモードを分けて、異なる認知能力（計算力・記憶力）を鍛えられる設計にした
