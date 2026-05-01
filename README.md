@@ -25,10 +25,10 @@ https://my-java-app-q9xd.onrender.com/
 - ゲーム画面
 - 
 <div class="image-grid">
-  <img src="images/sukusyo001.png">
-  <img src="images/sukusyo002.png">
-  <img src="images/sukusyo003.png">
-  <img src="images/sukusyo004.png">
+  <img src="images/sukusyo001.png"width="300">
+  <img src="images/sukusyo002.png"width="300">
+  <img src="images/sukusyo003.png"width="300">
+  <img src="images/sukusyo004.png"width="300">
 </div>
 
 ## 工夫した点
