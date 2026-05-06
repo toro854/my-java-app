@@ -4,13 +4,25 @@
 https://my-java-app-q9xd.onrender.com/
 
 ## 使用技術
-- Java（メインロジック）
-- JavaScript（フロント制御）
-- HTML / CSS（UI構築）
-- MySQL / PostgreSQL（データベース）
-- Git / GitHub（ソースコード管理）
-- Render（Webアプリ公開・デプロイ）
 
+ ■ バックエンド
+- Java
+- Spring Boot
+- Spring MVC
+- Spring Security
+
+ ■ フロントエンド
+- JavaScript
+- HTML / CSS
+
+ ■ データベース
+- MySQL / PostgreSQL
+
+ ■ インフラ・開発ツール
+- Git / GitHub
+- Render
+
+ ## 使用技術
 - ユーザー登録機能
 - ログイン認証機能
 - パスワードハッシュ化
