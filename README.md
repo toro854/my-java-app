@@ -7,9 +7,9 @@ https://my-java-app-q9xd.onrender.com/
 - Java（メインロジック）
 - JavaScript（フロント制御）
 - HTML / CSS（UI構築）
--MySQL / PostgreSQL（データベース）
--Git / GitHub（ソースコード管理）
--Render（Webアプリ公開・デプロイ）
+- MySQL / PostgreSQL（データベース）
+- Git / GitHub（ソースコード管理）
+- Render（Webアプリ公開・デプロイ）
 
 ## 使用技術
 -ユーザー登録機能
