@@ -1,7 +1,7 @@
 # フラッシュ暗算系のゲーム
 
 ## デプロイURL
-https://my-java-app-q9xd.onrender.com/
+https://my-java-app-q9xd.onrender.com
 
 ## 使用技術
 
