@@ -2,7 +2,6 @@
 
 ## デプロイURL
 https://my-java-app-q9xd.onrender.com
-
 <br>※無料のRenderを使用しているため、15分以上のアクセスがないと起動時に1分弱のロード時間がかかります。
 
 
